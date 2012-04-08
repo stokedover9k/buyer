@@ -39,6 +39,7 @@ std::vector<float> BuyerParser::getBrands(BuyerParser::InputType t) {
     case BuyerParser::PRICE:  c = Cell('c',  3);  off = 3;  break;
     case BuyerParser::TRUST:  c = Cell('l', 15);  off = 0;  break;
     case BuyerParser::FIT:    c = Cell('u', 15);  off = 0;  break;
+    case BuyerParser::FASH:   c = Cell('c', 15);  off = 0;  break;
     default: throw
 	"BuyerParser::getBrands(BuyerParser::InputType): unknown type requested";
     }
@@ -47,6 +48,49 @@ std::vector<float> BuyerParser::getBrands(BuyerParser::InputType t) {
     c.first++;
   }
   return v;
+}
+
+float BuyerParser::getModelParam(BuyerParser::InputType t, size_t i, size_t j) {
+  Cell c;
+
+  switch(t)
+    {
+    case BuyerParser::rho:     c = Cell('b', 5);  break;
+    case BuyerParser::RHO:     c = Cell('b', 6);  break;
+    case BuyerParser::lambda:  c = Cell('b', 9);  break;
+    case BuyerParser::LAMBDA:  c = Cell('b',10);  break;
+    case BuyerParser::phi:     c = Cell('t',21);  break;
+    case BuyerParser::PHI:     c = Cell('t',22);  break;
+    case BuyerParser::tau:     c = Cell('k',21);  break;
+    case BuyerParser::TAU:     c = Cell('k',22);  break;
+    case BuyerParser::gamma:   c = Cell('b',21);  break;
+    case BuyerParser::GAMMA:   c = Cell('b',22);  break;
+    case BuyerParser::DELTA:   c = Cell('b',40);  break;
+    case BuyerParser::alpha:  
+      throw "BuyerParser::getModelParam(): implementation missing for alpha param";
+    case BuyerParser::ALPHA:  
+      throw "BuyerParser::getModelParam(): implementation missing for ALPHA param";
+    default:
+      throw "BuyerParser::getModelParam(): unknown param requested";
+    }
+  
+  float v = std::atof( getCell(c).c_str() );
+
+  return v;
+}
+
+void BuyerParser::getAdCampaign(std::vector<std::vector<float> >& v) {
+  v.clear();
+  Cell start_c('c',41);
+  int count = 0;
+  for( int t=0; t<N_TIME_INTERVALS; t++ ) {
+    v.push_back(std::vector<float>(N_BRANDS));
+    Cell c = Cell(start_c.first, start_c.second+t);
+    for( int b=0; b<N_BRANDS; b++ ) {
+      v[t][b] = std::atof(getCell(c).c_str());
+      c.first++;
+    }
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

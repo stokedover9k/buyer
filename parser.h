@@ -25,6 +25,21 @@ class BuyerParser
     PRICE,
     TRUST,
     FIT,
+    FASH,
+
+    rho,
+    RHO,
+    lambda,
+    LAMBDA,
+    phi,
+    PHI,
+    tau,
+    TAU,
+    gamma,
+    GAMMA,
+    DELTA,
+    alpha,
+    ALPHA,
   };
 
   BuyerParser();
@@ -37,6 +52,8 @@ class BuyerParser
 
   float              getBudget(void);
   std::vector<float> getBrands(InputType);
+  float              getModelParam(InputType, size_t i=-1, size_t j=-1);
+  void               getAdCampaign(std::vector<std::vector<float> >&);
 
  private:
   std::vector<CSVRow> data;

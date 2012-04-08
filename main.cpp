@@ -31,6 +31,34 @@ int main(int argc, char *argv[])
       vector<float> fit = parser.getBrands(BuyerParser::FIT);
       for( vector<float>::iterator i = fit.begin(); i != fit.end(); i++ )
 	cout << "  " << *i << endl;
+
+      cout << "Fash (initial)..." << endl;
+      vector<float> fash = parser.getBrands(BuyerParser::FASH);
+      for( vector<float>::iterator i = fash.begin(); i != fash.end(); i++ )
+	cout << "  " << *i << endl;
+
+      cout << "Advertisements..." << endl;
+      vector<vector<float> > adv;
+      parser.getAdCampaign(adv);
+      int count = 0;
+      for( vector<vector<float> >::iterator i = adv.begin(); i != adv.end(); i++ ) {
+	for( vector<float>::iterator j = (*i).begin(); j != (*i).end(); j++ ) {
+	  cout << *j << " ";
+	}
+	cout << endl;
+      }
+
+      cout << parser.getModelParam(BuyerParser::rho) << endl;
+      cout << parser.getModelParam(BuyerParser::RHO) << endl;
+      cout << parser.getModelParam(BuyerParser::lambda) << endl;
+      cout << parser.getModelParam(BuyerParser::LAMBDA) << endl;
+      cout << parser.getModelParam(BuyerParser::phi) << endl;
+      cout << parser.getModelParam(BuyerParser::PHI) << endl;
+      cout << parser.getModelParam(BuyerParser::tau) << endl;
+      cout << parser.getModelParam(BuyerParser::TAU) << endl;
+      cout << parser.getModelParam(BuyerParser::gamma) << endl;
+      cout << parser.getModelParam(BuyerParser::GAMMA) << endl;
+      cout << parser.getModelParam(BuyerParser::DELTA) << endl;
     }
   catch( const char* error )
     {
