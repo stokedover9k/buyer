@@ -83,12 +83,25 @@ void BuyerParser::getAdCampaign(std::vector<std::vector<float> >& v) {
   v.clear();
   Cell start_c('c',41);
   int count = 0;
+
+  /*
   for( int t=0; t<N_TIME_INTERVALS; t++ ) {
     v.push_back(std::vector<float>(N_BRANDS));
     Cell c = Cell(start_c.first, start_c.second+t);
+
     for( int b=0; b<N_BRANDS; b++ ) {
       v[t][b] = std::atof(getCell(c).c_str());
       c.first++;
+    }
+  }
+  //*/
+  for( int b=0; b<N_BRANDS; b++ ) {
+    v.push_back(std::vector<float>(N_TIME_INTERVALS));
+    Cell c = Cell(start_c.first + b, start_c.second);
+
+    for( int t=0; t<N_TIME_INTERVALS; t++ ) {
+      v[b][t] = std::atof( getCell(c).c_str() );
+      c.second++;
     }
   }
 }
