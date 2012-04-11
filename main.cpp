@@ -12,21 +12,23 @@ using std::vector;
 
 int main(int argc, char *argv[]) 
 {
+  AgentID a;
+  Agent agent;
+  Model m;
+  vector<BrandID> brand_ids;
+
+
   try
     {
       const char* filename = ( argc > 1 ) ? argv[1] : "in.csv";
       BuyerParser parser(filename);
 
-      vector<float> prices  = parser.getBrands(BuyerParser::PRICE);
-      vector<float> trust   = parser.getBrands(BuyerParser::TRUST);
-      vector<float> fit     = parser.getBrands(BuyerParser::FIT);
-      vector<float> fash    = parser.getBrands(BuyerParser::FASH);
+      vector<float>    prices = parser.getBrands(BuyerParser::PRICE);
+      vector<float>     trust = parser.getBrands(BuyerParser::TRUST);
+      vector<float>       fit = parser.getBrands(BuyerParser::FIT);
+      vector<float>      fash = parser.getBrands(BuyerParser::FASH);
       vector<vector<float> > adv;
       parser.getAdCampaign(adv);
-
-      Agent agent;
-      ModelData m;
-      vector<BrandID> brand_ids;
 
       agent.set(Agent::BUDGET, parser.getBudget());
       agent.set(Agent::R_, parser.getModelParam(BuyerParser::rho));
@@ -41,14 +43,14 @@ int main(int argc, char *argv[])
       agent.set(Agent::GG, parser.getModelParam(BuyerParser::GAMMA));
       agent.set(Agent::DD, parser.getModelParam(BuyerParser::DELTA));
 
-      AgentID a = m.add_agent(agent);
+      a = m.add_agent(agent);
 
       for( int x = 0; x < prices.size(); x++ ) {
 	BrandID brand = m.add_brand( prices[x] );
 
-	m.get_agent(a).set( brand, Agent::TRUST, trust[x] );
-	m.get_agent(a).set( brand, Agent::FIT,     fit[x] );
-	m.get_agent(a).set( brand, Agent::FASH,   fash[x] );
+	m.get_agent(a).state( brand ).trust =           trust[x];
+	m.get_agent(a).state( brand ).fit   =             fit[x];
+	m.get_agent(a).state( brand ).fash  = (FashState)fash[x];
 
 	brand_ids.push_back(brand);
       }
@@ -59,8 +61,55 @@ int main(int argc, char *argv[])
     }
   catch( const char* error )
     {
-      cout << "ERROR: " << error << "\nExiting (1)" << endl;
+      cout << "ERROR loading model: " << error << "\nExiting (1)" << endl;
       std::exit(1);
     }
+
+  //---------------------------------------------------------------------------
+
+  try
+    {
+
+      cout << "count: " << Model::all_like_states.size() << endl;
+
+      for( ITERATE_LIKE_STATES )
+	{
+	  cout << "Like state: " << *like_itr << endl;
+
+	  for( int x = 0; x < brand_ids.size(); x++ ) {
+	    /*
+	      cout << "FIT:   " << m.m_fit  (a, brand_ids[x], LOVE) << endl
+	      << "TRUST: " << m.m_trust(a, brand_ids[x], LOVE) << endl
+	      << "FASH:  " << m.m_trust(a, brand_ids[x], LOVE) << endl;
+	    //*/
+	    cout << "brand: " << x << " "
+		 << m.p_like(a, brand_ids[x], *like_itr )
+		 << endl;
+	  }
+	}
+
+      /*
+      for( ITERATE_LIKE_STATES ) {
+	cout << "like: " << *Model::like_itr << endl;
+
+	for( int x = 0; x < brand_ids.size(); x++ ) {
+	  /*
+	    cout << "FIT:   " << m.m_fit  (a, brand_ids[x], LOVE) << endl
+	    << "TRUST: " << m.m_trust(a, brand_ids[x], LOVE) << endl
+	    << "FASH:  " << m.m_trust(a, brand_ids[x], LOVE) << endl;
+	  //*
+	  cout << "brand: " << x << " "
+	       << m.p_like(a, brand_ids[x], *Model::like_itr )
+	       << endl;
+	}
+      }
+*/
+    }
+  catch( const char* error )
+    {
+      cout << "ERROR running model: " << error << "Exiting (2)" << endl;
+      std::exit(2);
+    }
+
   return 0;
 }

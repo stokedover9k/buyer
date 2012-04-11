@@ -10,28 +10,27 @@
 class Agent {
 
  public:
-
-  enum stateField { TRUST, FIT, FASH, N_STATE_FIELDS };
+  struct States {
+    float fit;
+    float trust;
+    FashState fash;
+  };
 
   enum paramField  // notation: R_ => lower case rho, RR => upper case RHO
   { R_ = 0, RR, L_, LL, F_, FF, T_, TT, G_, GG, DD, A_, AA, BUDGET, 
     N_PARAM_FIELDS };
 
-  float   get(                Agent::paramField param_name );
-  State_t get( BrandID brand, Agent::stateField state_name );
+  float get( Agent::paramField param_name ) const ;
+  void set( Agent::paramField param_name, float value );
 
-  void    set(                Agent::paramField param_name, float value );
-  void    set( BrandID brand, Agent::stateField state_name, State_t val );
+  States const& state( BrandID ) const;
+  States      & state( BrandID );
 
  protected:
-  float&   param(          Agent::paramField param_name );
-  State_t  state( BrandID, Agent::stateField state_name ) const;
-  State_t& state( BrandID, Agent::stateField state_name );
+  float & param( Agent::paramField param_name );
+  float   param( Agent::paramField param_name ) const;
   
  private:
-  struct States {
-    State_t s[N_STATE_FIELDS];
-  };
 
   float _params[N_PARAM_FIELDS];
   std::map<BrandID, States> _states;

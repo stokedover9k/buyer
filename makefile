@@ -1,4 +1,4 @@
-OBJS = main.o parser.o agent.o ad-campaign.o model.o
+OBJS = parser.o agent.o ad-campaign.o model.o main.o
 CC = g++
 CFLAGS = -c
 LFLAGS_DB = 

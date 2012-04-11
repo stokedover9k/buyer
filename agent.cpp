@@ -1,16 +1,23 @@
 #include "agent.h"
 
-float Agent::get( Agent::paramField p )
+float Agent::get( Agent::paramField p ) const
 { return param(p); }
-
-State_t Agent::get( BrandID b, Agent::stateField s )
-{ return state(b, s); }
-
 void Agent::set( Agent::paramField p, float v )
 { param(p) = v; }
 
-void Agent::set( BrandID b, Agent::stateField s, State_t v )
-{ state(b, s) = v; }
+Agent::States const& Agent::state( BrandID b ) const {
+  std::map<BrandID, States>::const_iterator i = _states.find(b);
+  if( i == _states.end() )
+    throw "Agent::state(BrandID) const: no brand matching BrandID";
+  return i->second;
+}
+
+Agent::States& Agent::state( BrandID b ) {
+  std::map<BrandID, States>::iterator i = _states.find(b);
+  if( i == _states.end() )
+    i = _states.insert(std::pair<BrandID, States>(b, States())).first;
+  return i->second;
+}
 
 //-----------------------------------------------------------------------------
 
@@ -21,17 +28,10 @@ float& Agent::param( Agent::paramField p )
   return _params[p];
 }
 
-State_t Agent::state( BrandID b, Agent::stateField state_name ) const {
-  if( state_name < 0 || state_name >= Agent::N_STATE_FIELDS )
-    throw "Agent::state(BrandID, Agent::stateField): unexpected field requested";
-  std::map<BrandID, States>::const_iterator s = _states.find(b);
-  if( s == _states.end() )
-    throw "Agent::state(BrandID, Agent::stateField): brand ID not found";
-  return s->second.s[state_name];
+float Agent::param( Agent::paramField p ) const
+{
+  if( p < 0 || p >= N_PARAM_FIELDS ) 
+    throw "Agent::param(Agent::paramField): unexpected param requested.";
+  return _params[p];
 }
 
-State_t& Agent::state( BrandID b, Agent::stateField state_name ) {
-  if( state_name < 0 || state_name >= Agent::N_STATE_FIELDS )
-    throw "Agent::state(BrandID, Agent::stateField): unexpected field requested";
-  return _states[b].s[state_name];
-}
