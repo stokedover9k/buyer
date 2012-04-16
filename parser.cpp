@@ -84,17 +84,6 @@ void BuyerParser::getAdCampaign(std::vector<std::vector<float> >& v) {
   Cell start_c('c',41);
   int count = 0;
 
-  /*
-  for( int t=0; t<N_TIME_INTERVALS; t++ ) {
-    v.push_back(std::vector<float>(N_BRANDS));
-    Cell c = Cell(start_c.first, start_c.second+t);
-
-    for( int b=0; b<N_BRANDS; b++ ) {
-      v[t][b] = std::atof(getCell(c).c_str());
-      c.first++;
-    }
-  }
-  //*/
   for( int b=0; b<N_BRANDS; b++ ) {
     v.push_back(std::vector<float>(N_TIME_INTERVALS));
     Cell c = Cell(start_c.first + b, start_c.second);
@@ -102,6 +91,25 @@ void BuyerParser::getAdCampaign(std::vector<std::vector<float> >& v) {
     for( int t=0; t<N_TIME_INTERVALS; t++ ) {
       v[b][t] = std::atof( getCell(c).c_str() );
       c.second++;
+    }
+  }
+}
+
+void BuyerParser::getInteractions(std::vector<std::vector<std::pair<float,float> > >& v, 
+				  size_t x) {
+  v.clear();
+  Cell st_a('k',42);
+  Cell st_A('p',42);
+
+  for( int i=0; i<x; i++ ) {
+    v.push_back(std::vector<std::pair<float,float> >(x));
+    for( int j=0; j<x; j++ ) {
+      std::pair<float,float> p( std::atof( getCell(Cell(st_a.first+j, 
+							st_a.second+i)).c_str() ),
+				std::atof( getCell(Cell(st_A.first+j, 
+							st_A.second+i)).c_str() )
+				);
+      v[i][j] = p;
     }
   }
 }

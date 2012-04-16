@@ -9,6 +9,7 @@
 #define STATE_FACTOR 0.25
 
 enum FashState _FASH_STATES_BLOCK;
+#define N_FASH_STATES LOVE+1
 
 typedef FashState LikeState;
 

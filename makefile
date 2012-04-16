@@ -18,7 +18,7 @@ ad-campaign.o: ad-campaign.cpp ad-campaign.h model-defs.h
 model.o: model.cpp model.h agent.h ad-campaign.h model-defs.h
 	$(CC) $(CFLAGS) $<
 
-main.o: main.cpp parser.h agent.h
+main.o: main.cpp parser.h agent.h model.h
 	$(CC) $(CFLAGS) $<
 
 

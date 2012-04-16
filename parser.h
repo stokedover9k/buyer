@@ -54,6 +54,8 @@ class BuyerParser
   std::vector<float> getBrands(InputType);
   float              getModelParam(InputType, size_t i=-1, size_t j=-1);
   void               getAdCampaign(std::vector<std::vector<float> >&);
+  void getInteractions(std::vector<std::vector<std::pair<float,float> > >&, 
+		       size_t n_x);
 
  private:
   std::vector<CSVRow> data;
@@ -74,7 +76,3 @@ class CSVRow
 };
 
 std::istream& operator>>(std::istream& str, CSVRow& data);
-
-
-
-  

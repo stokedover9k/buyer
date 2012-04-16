@@ -11,17 +11,18 @@ class Agent {
 
  public:
   struct States {
+    float like;
     float fit;
     float trust;
-    FashState fash;
+    float fash;
   };
 
   enum paramField  // notation: R_ => lower case rho, RR => upper case RHO
-  { R_ = 0, RR, L_, LL, F_, FF, T_, TT, G_, GG, DD, A_, AA, BUDGET, 
+  { R_ = 0, RR, L_, LL, F_, FF, T_, TT, G_, GG, DD, BUDGET, 
     N_PARAM_FIELDS };
 
   float get( Agent::paramField param_name ) const ;
-  void set( Agent::paramField param_name, float value );
+  void  set( Agent::paramField param_name, float value );
 
   States const& state( BrandID ) const;
   States      & state( BrandID );
