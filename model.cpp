@@ -102,8 +102,6 @@ float TickerModel::_p_fash_adv(FashState fash, float ad_v, AgentID a, BrandID b)
     sum_total += std::exp(-exponent) * dist_prev(fash_prev);
   }
 
-  //std::cout << "sum: " << sum_total << std::endl;
-
   float product_total = 1.0;
 
   for( std::map<AgentID, Agent>::const_iterator a_itr = _agents.begin();
@@ -124,7 +122,8 @@ float TickerModel::_p_fash_adv(FashState fash, float ad_v, AgentID a, BrandID b)
       }
 
       product_total *= j_sum;
-    } //*/
+    }
+
   return sum_total * product_total;
 }
 
