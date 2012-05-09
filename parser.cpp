@@ -109,6 +109,11 @@ void BuyerParser::getInteractions(std::vector<std::vector<std::pair<float,float>
 				std::atof( getCell(Cell(st_A.first+j, 
 							st_A.second+i)).c_str() )
 				);
+      /**
+      std::cout << "a: " << p.first << std::endl;
+      std::cout << "A: " << p.second << std::endl;
+      std::cout << getCell(Cell(st_a.first+j, st_a.second+i)) << std::endl;
+      */
       v[i][j] = p;
     }
   }

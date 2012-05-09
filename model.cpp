@@ -30,7 +30,7 @@ float TickerModel::update_agent_fash(AgentID a, BrandID b,
 }
 
 float TickerModel::calc_fashion_distrib(AgentID a, BrandID b, 
-					    Model::ModelMode avg_mode) {
+					Model::ModelMode avg_mode) {
   if( avg_mode != Model::MAX && avg_mode != Model::AVERAGE 
       && avg_mode != Model::ROUND_AVG )
     throw "TickerModel::calc_fashion_distrib(AgentID, BrandID, bool): "
@@ -98,6 +98,8 @@ float TickerModel::_p_fash_adv(FashState fash, float ad_v, AgentID a, BrandID b)
       + get_social(a, a, TickerModel::A_) 
       * std::pow( std::abs(fash - fash_prev), 
 		  get_social(a, a, TickerModel::AA) );
+    //std::cout << "!!! " << std::pow( std::abs(fash - fash_prev), get_social(a, a, TickerModel::AA) ) << std::endl;
+    //std::cout << "!!!!! " << get_social(a,a,TickerModel::AA) << std::endl;
     
     sum_total += std::exp(-exponent) * dist_prev(fash_prev);
   }

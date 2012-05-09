@@ -46,8 +46,11 @@ int main(int argc, char *argv[])
 
       for( int n_arg = 1; n_arg < argc; n_arg++ ) {
 	cout << "# parsing file: " << argv[n_arg] << endl;
-	load_file( argv[n_arg], agent_ids, brand_ids, m, n_arg==1, n_arg==argc-1);
+	load_file( argv[n_arg], agent_ids, brand_ids, m, n_arg==1, false);
       }
+      
+      cout << "# parsing file for social: " << argv[1] << endl;
+      load_file( argv[1], agent_ids, brand_ids, m, false, true );
     }
   catch( const char* error )
     {
@@ -101,11 +104,25 @@ void load_file(const char* filename,
 	       vector<AgentID>& agent_ids, vector<BrandID>& brand_ids, 
 	       TickerModel& m, 
 	       bool add_brands, bool load_social) {
-  
-  AgentID a;
-  Agent agent;
 
   BuyerParser parser( filename );
+
+  if( load_social ) {
+    vector<vector<std::pair<float,float> > > interactions; 
+    parser.getInteractions( interactions, agent_ids.size() );
+    for( int i=0; i<agent_ids.size(); i++ )
+      for( int j=0; j<agent_ids.size(); j++ ) {
+	m.add_social(agent_ids[i], agent_ids[j], 
+		     interactions[i][j].first, TickerModel::A_);
+	
+	m.add_social(agent_ids[i], agent_ids[j], 
+		     interactions[i][j].second, TickerModel::AA);
+      }
+    return;
+  }
+
+  AgentID a;
+  Agent agent;
 
   vector<float>    prices = parser.getBrands( BuyerParser::PRICE );
   vector<float>     trust = parser.getBrands( BuyerParser::TRUST );
@@ -148,18 +165,6 @@ void load_file(const char* filename,
 
   for( int x = 0; x < adv.size(); x++ )
     m.add_ads( a, brand_ids[x], AdSeq(adv[x]) );
-
-  if( load_social ) {
-    vector<vector<std::pair<float,float> > > interactions; 
-    parser.getInteractions( interactions, agent_ids.size() );
-    for( int i=0; i<agent_ids.size(); i++ )
-      for( int j=0; j<agent_ids.size(); j++ ) {
-	m.add_social(agent_ids[i], agent_ids[j], 
-		     interactions[i][j].first, TickerModel::A_);
-	m.add_social(agent_ids[i], agent_ids[j], 
-		     interactions[i][j].second, TickerModel::AA);
-      }
-  }
 }
 
 void print_header( PrintHeader h, AgentID a, FashState f ) {
