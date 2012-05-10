@@ -22,24 +22,8 @@ class BuyerParser
 {
  public:
   enum InputType {
-    PRICE,
-    TRUST,
-    FIT,
-    FASH,
-
-    rho,
-    RHO,
-    lambda,
-    LAMBDA,
-    phi,
-    PHI,
-    tau,
-    TAU,
-    gamma,
-    GAMMA,
-    DELTA,
-    alpha,
-    ALPHA,
+    PRICE, TRUST, FIT, FASH,
+    rho, RHO, lambda, LAMBDA, phi, PHI, tau, TAU, gamma, GAMMA, DELTA, alpha, ALPHA,
   };
 
   BuyerParser();
@@ -56,6 +40,7 @@ class BuyerParser
   void               getAdCampaign(std::vector<std::vector<float> >&);
   void getInteractions(std::vector<std::vector<std::pair<float,float> > >&, 
 		       size_t n_x);
+  std::string getBrandName(size_t brand_index);
 
  private:
   std::vector<CSVRow> data;

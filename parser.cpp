@@ -119,6 +119,11 @@ void BuyerParser::getInteractions(std::vector<std::vector<std::pair<float,float>
   }
 }
 
+std::string BuyerParser::getBrandName(size_t b_ind) {
+  const std::string& s = getCell( Cell('c' + b_ind, 1) );
+  return s.substr(1, s.length()-2);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 std::string const& CSVRow::operator[](std::size_t index) const

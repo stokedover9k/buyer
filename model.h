@@ -52,9 +52,13 @@ class ModelData {
   AgentID add_agent(const Agent&);  //add new agent, and a campaign for it
   void    add_ads(AgentID a, BrandID b, const AdSeq& s);
 
+  void set_brand_price(BrandID, float price);
+
   Agent& get_agent(AgentID a);
   float  get_price(BrandID b);
   float  get_ad(AgentID, BrandID b, size_t time);
+  
+  AdSeq& get_ad_seq(AgentID, BrandID);
 
  protected:
   std::map<BrandID, float>      _brands;

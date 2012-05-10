@@ -318,6 +318,10 @@ void ModelData::add_ads(AgentID a, BrandID b, const AdSeq& adds) {
   _ads[a].get(b) = adds;
 }
 
+void ModelData::set_brand_price(BrandID b, float p) {
+  _brands[b] = p;
+}
+
 
 
 Agent& ModelData::get_agent(AgentID a) {
@@ -340,6 +344,14 @@ float ModelData::get_ad(AgentID a, BrandID b, size_t t) {
     throw "ModelData::get_ad(AgentID, BrandID, size_t): "
       "no Agent matching requested AgentID";
   return ad_i->second.get( b ).get( t );
+}
+
+AdSeq& ModelData::get_ad_seq(AgentID a, BrandID b) {
+  std::map<AgentID, AdCampaign>::iterator ad_i = _ads.find(a);
+  if( ad_i == _ads.end() )
+    throw "ModelData::get_ad_seq(AgentID, BrandID): "
+      "no Agent matching requested AgentID";
+  return ad_i->second.get( b );
 }
 
 ///////////////////////////////////////////////////////////////////////////////

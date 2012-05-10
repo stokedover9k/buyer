@@ -34,6 +34,8 @@ class AdSeq {
   float get(uint32_t time) const;
   friend float& operator << (float& v, AdSeq& a);
   friend AdSeq& operator >> (AdSeq& a, float& v);
+  
+  void add(float);
 
   uint32_t length(void) const;
   void reset_iterator(void);

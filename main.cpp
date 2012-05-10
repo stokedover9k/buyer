@@ -2,10 +2,13 @@
 
 #include <iostream>
 #include <iomanip>
+#include <string.h>
 
 #include "model.h"
 
 #define P_WIDTH 12
+#define TOKEN_MAX_SIZE 16
+#define LINE_MAX_SIZE 256
 
 using std::cout;
 using std::endl;
@@ -24,8 +27,246 @@ void load_file(const char* filename,
 	       bool add_brands=false, bool load_social=false);
 
 
+std::istream& read_token(std::istream& is, char* buff, char delim = ' ') {
+  while( is.peek() == ' ' || is.peek() == '\n' )  is.get();
+  is.getline( buff, TOKEN_MAX_SIZE, delim );
+  return is;
+}
 
-int main(int argc, char *argv[]) 
+
+
+int main( int argc, char *argv[] )
+{
+  //--------------------
+  // set up input stream
+  //--------------------
+  std::istream* in = ( argc > 2 && strcmp(argv[1], "-f") == 0 ) 
+    ? new std::ifstream(argv[2]) : &std::cin;
+  std::istream& infile = *in;
+
+  if( !infile ) {
+    std::cerr << "ERROR: Could not open input stream.\n"
+	      << "Exiting (1)" << endl;
+    std::exit(1);
+  }
+
+  //-----------------------------
+  // parse input and create model
+  //-----------------------------
+  std::map<std::string, AgentID> agent_ids;
+  std::map<std::string, BrandID> brand_ids;
+  TickerModel m;
+
+  try
+    {
+      while( infile ) 
+	{
+	  while( infile.peek() == ' ' || infile.peek() == '\n' )   infile.get();
+	  while( infile.peek() == '#' )   infile.ignore(LINE_MAX_SIZE, '\n');
+	  if( !infile ) continue;
+
+	  char buff[TOKEN_MAX_SIZE];
+	  if( !read_token( infile, buff ) )
+	    throw "Error occurred while reading the input stream.";
+
+	  // add to model
+	  if( 0 == strcmp( buff, "add" ) ) {
+
+	    if( !read_token( infile, buff ) )
+	      throw "Error while reading an addition to the model.";
+	    
+	    if( 0 == strcmp( buff, "brand" ) ) {
+	      read_token( infile, buff, '\n' );
+	      brand_ids[ std::string(buff) ] = m.add_brand(0);;
+	    }
+
+	    else if( 0 == strcmp( buff, "agent" ) ) {
+	      read_token( infile, buff, '\n' );
+	      agent_ids[ std::string(buff) ] = m.add_agent(Agent());
+	    }
+
+	    else if( 0 == strcmp( buff, "ads" ) ) {
+	      read_token( infile, buff );
+	      if( 0 != strcmp( buff, "agent" ) )
+		throw "Unexpected token while reading ad-campaign.";
+	      read_token( infile, buff );
+	      AgentID aid = agent_ids[ std::string(buff) ];
+
+	      read_token( infile, buff );
+	      if( 0 != strcmp( buff, "brand" ) )
+		throw "Unexpected token while reading ad-campaign.";
+	      read_token( infile, buff );
+	      BrandID bid = brand_ids[ std::string(buff) ];
+
+	      read_token( infile, buff, '\n' );
+	      if( !infile) throw "Unexpected token while reading ad-campaign.";
+	      m.get_ad_seq(aid, bid).add( atof(buff) );
+	    }
+	    else
+	      throw "Invalid add requested.";
+	    
+	  } // end add to model
+
+	  // social ties
+	  else if( 0 == strcmp( buff, "social" ) ) { //implement
+	    read_token( infile, buff );
+	    
+	    if( 0 == strcmp(buff, "strong") ) {
+	      read_token( infile, buff );
+	      AgentID a1 = agent_ids[ std::string(buff) ];
+	      read_token( infile, buff );
+	      AgentID a2 = agent_ids[ std::string(buff) ];
+
+	      read_token( infile, buff );
+	      if( 0 == strcmp(buff, "A_") ) {
+		read_token( infile, buff, '\n' );
+		m.add_social(a1, a2, atof(buff), TickerModel::A_);
+	      }
+	      else if( 0 == strcmp(buff, "AA") ) {
+		read_token( infile, buff, '\n' );
+		m.add_social(a1, a2, atof(buff), TickerModel::AA);
+	      }
+	      else
+		throw "Invalid parameter for strong social bonds.";
+	    }
+	    else 
+	      throw "Unknown type of social bond.";
+
+	    infile.ignore(LINE_MAX_SIZE, '\n');
+	  } // end social ties
+
+	  // agent parameters
+	  else if( 0 == strcmp( buff, "agent" ) ) {
+	    read_token( infile, buff );
+	    AgentID aid = agent_ids[ std::string(buff) ];
+	    
+	    char param_type[TOKEN_MAX_SIZE];
+	    read_token( infile, param_type );
+
+	    if( 0 == strcmp( param_type, "param" ) ) {
+	      Agent::paramField p_field;
+	      read_token( infile, buff );
+	      
+	      if     ( 0 == strcmp(buff, "BUDGET") ) p_field = Agent::BUDGET;
+	      else if( 0 == strcmp(buff,     "R_") ) p_field = Agent::R_;
+	      else if( 0 == strcmp(buff,     "RR") ) p_field = Agent::RR;
+	      else if( 0 == strcmp(buff,     "L_") ) p_field = Agent::L_;
+	      else if( 0 == strcmp(buff,     "LL") ) p_field = Agent::LL;
+	      else if( 0 == strcmp(buff,     "F_") ) p_field = Agent::F_;
+	      else if( 0 == strcmp(buff,     "FF") ) p_field = Agent::FF;
+	      else if( 0 == strcmp(buff,     "T_") ) p_field = Agent::T_;
+	      else if( 0 == strcmp(buff,     "TT") ) p_field = Agent::TT;
+	      else if( 0 == strcmp(buff,     "G_") ) p_field = Agent::G_;
+	      else if( 0 == strcmp(buff,     "GG") ) p_field = Agent::GG;
+	      else if( 0 == strcmp(buff,     "DD") ) p_field = Agent::DD;
+	      else
+		throw "Invalid Agent param.";
+
+	      read_token( infile, buff, '\n' );
+	      m.get_agent(aid).set(p_field, atof(buff));
+	    }
+	    else {
+	      read_token( infile, buff );
+	      if( 0 != strcmp(buff, "brand") ) {
+		cout << buff << " - " << param_type << endl;
+		throw "Agent characteristic's brand not found.";
+	      }
+
+	      read_token( infile, buff );
+	      Agent::States& state =
+		m.get_agent(aid).state( brand_ids[ std::string(buff) ] );
+
+	      read_token( infile, buff, '\n' );
+	      float state_val = atof(buff);
+
+	      if( 0 == strcmp( param_type, "trust" ) )
+		state.trust = state_val;
+	      else if( 0 == strcmp( param_type, "fit" ) )
+		state.fit = state_val;
+	      else if( 0 == strcmp( param_type, "fash" ) )
+		state.fash = state_val;
+	      else {
+		cout << buff << endl;
+		throw "Unexpected agent characteristic.";
+	      }
+	    }
+
+	  } // end social parameters
+
+	  // brand parameters
+	  else if( 0 == strcmp( buff, "brand" ) ) {
+	    infile.getline( buff, TOKEN_MAX_SIZE, ' ' );
+	    BrandID bid = brand_ids[ std::string(buff) ];
+	    infile.getline( buff, TOKEN_MAX_SIZE, ' ' );
+
+	    if( 0 == strcmp( buff, "price" ) ) {
+	      infile.getline( buff, TOKEN_MAX_SIZE, '\n' );
+	      m.set_brand_price( bid, atof(buff) );
+	    }
+	    else
+	      throw "Unexpected brand parameter.";
+	  } // end brand parameters
+
+	  else
+	    throw "Unknown action at start of line.";
+	  
+	} // end parse loop
+
+      //---------------------------------
+      // initialize fashion distributions
+      //---------------------------------
+      for( std::map<std::string, BrandID>::const_iterator b_itr = brand_ids.begin(); b_itr != brand_ids.end(); b_itr++ ) 
+	for( std::map<std::string, AgentID>::const_iterator a_itr = agent_ids.begin(); a_itr != agent_ids.end(); a_itr++ ) 
+	  m.init_fashion_distrib( a_itr->second, b_itr->second );
+    }
+  catch ( const char* e )
+    {
+      std::cerr << "ERROR (while parsing and model creation): " << e
+		<< "\nExitin (1)..." << endl;
+      std::exit(1);
+    }
+
+  //--------------
+  // run the model
+  //--------------
+  try
+    {
+      for( int t=0; t < N_TIME_INTERVALS; t++ )
+	{
+	  m.tick();
+
+	  for( std::map<std::string, AgentID>::const_iterator a_itr = agent_ids.begin(); a_itr != agent_ids.end(); a_itr++ ) {
+	    AgentID a = a_itr->second;
+
+	    print_header(FASH, a);
+	    for( std::map<std::string, BrandID>::const_iterator b_itr = brand_ids.begin(); b_itr != brand_ids.end(); b_itr++ ) 
+	      print_prob( m.update_agent_fash(a, b_itr->second, Model::AVERAGE) );
+	    cout << endl;
+
+	    print_header(PURCH, a);
+	    for( std::map<std::string, BrandID>::const_iterator b_itr = brand_ids.begin(); b_itr != brand_ids.end(); b_itr++ ) 
+	      print_prob( m.v_purchase(a, b_itr->second, Model::AVERAGE) );
+	    cout << endl;
+
+	    for( ITERATE_FASH_STATES ) {
+	      print_header(FASH_DISTRIB, a, *fash_itr);
+	      for( std::map<std::string, BrandID>::const_iterator b_itr = brand_ids.begin(); b_itr != brand_ids.end(); b_itr++ ) 
+		print_prob( m.fash_state_prob(a, b_itr->second, *fash_itr) );
+	      cout << endl;
+	    }
+	  }
+	}
+    }
+  catch( const char* error )
+    {
+      cout << "ERROR running model: " << error << "\nExiting (3)" << endl;
+      std::exit(3);
+    }
+  return 0;
+}
+
+
+int main1(int argc, char *argv[]) 
 {
   if( argc < 2 ) {
     cout << "ERROR: no input file(s) specified.\n"

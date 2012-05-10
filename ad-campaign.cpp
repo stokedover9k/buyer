@@ -43,6 +43,10 @@ float& operator << (float& v, AdSeq& a)
 AdSeq& operator >> (AdSeq& a, float& v)
 { v = *(a._ad++);  return a; }
 
+void AdSeq::add(float v) {
+  _ads.push_back(v);
+}
+
 uint32_t AdSeq::length(void) const
 { return _ads.size(); }
 
