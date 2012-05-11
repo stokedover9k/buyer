@@ -82,7 +82,6 @@ float BuyerParser::getModelParam(BuyerParser::InputType t, size_t i, size_t j) {
 void BuyerParser::getAdCampaign(std::vector<std::vector<float> >& v) {
   v.clear();
   Cell start_c('c',41);
-  int count = 0;
 
   for( int b=0; b<N_BRANDS; b++ ) {
     v.push_back(std::vector<float>(N_TIME_INTERVALS));
@@ -115,6 +114,22 @@ void BuyerParser::getInteractions(std::vector<std::vector<std::pair<float,float>
       std::cout << getCell(Cell(st_a.first+j, st_a.second+i)) << std::endl;
       */
       v[i][j] = p;
+    }
+  }
+}
+
+void BuyerParser::getWeakTiesPreferences(std::vector<std::vector<float> >& ties,
+					 size_t ties_count) {
+  ties.clear();
+  Cell start_c('c', 54);
+
+  for( int k=0; k<ties_count; k++ ) {
+    ties.push_back(std::vector<float>(N_BRANDS));
+    Cell c = Cell(start_c.first + k, start_c.second);
+  
+    for( int b=0; b<N_BRANDS; b++ ) {
+      ties[k][b] = std::atof( getCell(c).c_str() );
+      c.second++;
     }
   }
 }

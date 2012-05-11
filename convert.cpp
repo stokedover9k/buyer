@@ -10,34 +10,40 @@ using std::cout;
 using std::endl;
 using std::flush;
 using std::vector;
+using std::pair;
+using std::string;
 
-#define INPUT_ARG_IND 5
+#define INPUT_ARG_IND 7
 
 
 int main( int argc, char *argv[] ) {
   int brand_count = 0;
   int time_count = 0;
   int agent_count = 0;
+  int weak_ties_count = 0;
 
   try 
     {
       if( argc <= INPUT_ARG_IND ) 
-	throw "Improper usage. Use: ./parse -b brand_count -t max_time FILE1 FILE2 ...";
+	throw "Improper usage. Use: ./parse -b brand_count -t max_time -w weak_ties FILE1 FILE2 ...";
 
-      if( strcmp(argv[1], "-b") != 0 )           throw "No brand count provided.";
-      if( (brand_count = atoi(argv[2])) <= 0 )   throw "Invalid brand count.";
+      if( strcmp(argv[1], "-b") != 0 )              throw "No brand count provided.";
+      if( (brand_count = atoi(argv[2])) <= 0 )      throw "Invalid brand count.";
       
-      if( strcmp(argv[3], "-t") != 0 )           throw "No max time provided.";
-      if( (time_count = atoi(argv[4])) <= 0 )    throw "Invalid max time value.";
+      if( strcmp(argv[3], "-t") != 0 )              throw "No max time provided.";
+      if( (time_count = atoi(argv[4])) <= 0 )       throw "Invalid max time value.";
+
+      if( strcmp(argv[5], "-w") != 0 )              throw "No weak ties number provided.";
+      if( (weak_ties_count = atoi(argv[6])) <= 0 )  throw "Invalid weak ties count value.";
       
       //-----------
       // add brands
       //-----------
       BuyerParser parser_1( argv[INPUT_ARG_IND] );
-      const std::vector<float>& prices = parser_1.getBrands( BuyerParser::PRICE );
+      const vector<float>& prices = parser_1.getBrands( BuyerParser::PRICE );
       if( prices.size() != brand_count )
 	throw "Brand count doesn't match the number of extracted brands.";
-      std::vector<std::string> brand_names( brand_count );
+      vector<string> brand_names( brand_count );
       
       for( int b=0; b<brand_count; b++ ) {
 	brand_names[b] = parser_1.getBrandName(b);
@@ -97,9 +103,9 @@ int main( int argc, char *argv[] ) {
 	
       }  // end agent iteration loop
 
-      //----------------
-      // add social ties
-      //----------------
+      //-----------------------
+      // add strong social ties
+      //-----------------------
       {
 	vector<vector<std::pair<float,float> > > social;
 	parser_1.getInteractions( social, agent_count );
@@ -111,6 +117,22 @@ int main( int argc, char *argv[] ) {
 		cout << "social strong " << i+1 << " " << j+1 << " AA " << social[i][j].second << endl;
 	      }
 	  }
+      }
+      
+      //---------------------
+      // add weak social ties
+      //---------------------
+      {
+	vector<vector<float> > weak_ties;
+	parser_1.getWeakTiesPreferences( weak_ties, weak_ties_count );
+
+	for( int k=1; k <= weak_ties_count; k++ ) {
+	  cout << "add weak_tie " << k << endl;
+	  
+	  for( int x=0; x<brand_count; x++ ) {
+	    cout << "    weak_tie " << k << " brand " << brand_names[x] << " " << weak_ties[k][x] << endl;
+	  }
+	}
       }
     }
   catch (const char* e)
