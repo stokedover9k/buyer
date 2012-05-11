@@ -51,6 +51,8 @@ class ModelData {
   BrandID add_brand(float price);
   AgentID add_agent(const Agent&);  //add new agent, and a campaign for it
   void    add_ads(AgentID a, BrandID b, const AdSeq& s);
+  AgentID add_weak(void);
+  void    add_weak_pref(AgentID, BrandID, FashState);
 
   void set_brand_price(BrandID, float price);
 
@@ -64,6 +66,8 @@ class ModelData {
   std::map<BrandID, float>      _brands;
   std::map<AgentID, Agent>      _agents;
   std::map<AgentID, AdCampaign> _ads;
+  std::set<AgentID>             _weak_ties;
+  std::map<std::pair<AgentID, BrandID>, FashState> _weak_pref;  //preferences
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -114,13 +118,16 @@ class Model : public ModelData {
 class TickerModel : public Model {
 
  public:
-  enum TMparam { A_, AA };
+  enum TMparam { A_, AA, B_, BB, };
 
   TickerModel(uint32_t t=0);
   ~TickerModel();
 
   void  add_social(AgentID, AgentID, float, TMparam);
   float get_social(AgentID, AgentID, TMparam);
+
+  void  add_weak_social(AgentID, AgentID, float, TMparam);
+  float get_weak_social(AgentID, AgentID, TMparam);
 
   /* Modes: 
    *   ROUND_AVG:  round the expected value to the nearest whole FashState.
@@ -149,9 +156,9 @@ class TickerModel : public Model {
 
   uint32_t _t;
   std::map<std::pair<AgentID,AgentID>, std::pair<float,float> >  _social;
+  std::map<std::pair<AgentID,AgentID>, std::pair<float,float> >  _weak_social;
   std::map<std::pair<AgentID,BrandID>, FashDistrib> * _current_tastes;
   std::map<std::pair<AgentID,BrandID>, FashDistrib> * _prev_tastes;
-
 };
 
 #endif

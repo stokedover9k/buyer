@@ -34,12 +34,17 @@ class BuyerParser
 
   std::string const& getCell(const Cell&);
 
-  float              getBudget(void);
+  float getBudget(void);
+
   std::vector<float> getBrands(InputType);
-  float              getModelParam(InputType, size_t i=-1, size_t j=-1);
-  void               getAdCampaign(std::vector<std::vector<float> >&);
-  void getInteractions(std::vector<std::vector<std::pair<float,float> > >&, 
-		       size_t n_x);
+
+  float getModelParam(InputType, size_t i=-1, size_t j=-1);
+
+  void getAdCampaign(std::vector<std::vector<float> >&);
+
+  void getInteractions(std::vector<std::vector<std::pair<float,float> > >&, size_t n_x);
+  void getWeakInteractions(std::vector<std::vector<std::pair<float,float> > >&, size_t agent_count, size_t ties_count);
+
   void getWeakTiesPreferences(std::vector<std::vector<float> >&,
 			      size_t ties_count);
   std::string getBrandName(size_t brand_index);

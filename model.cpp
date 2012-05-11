@@ -154,6 +154,23 @@ void TickerModel::add_social(AgentID i, AgentID j, float val,
   _social[key] = p;
 }
 
+void TickerModel::add_weak_social(AgentID i, AgentID k, float val,
+				  TickerModel::TMparam param) {
+  std::pair<AgentID,AgentID> key(i, k);
+  std::pair<float, float> p = _weak_social.find(key)->second;
+  
+  switch( param )
+    {
+    case TickerModel::B_:  p.first  = val;  break;
+    case TickerModel::BB:  p.second = val;  break;
+    default:
+      throw "TickerModel::add_weak_social(AgentID, AgentID, float, "
+	"TcikerModel::TMparam): unexpected parameter reqeusted.";
+    }
+
+  _weak_social[key] = p;
+}
+
 float TickerModel::get_social(AgentID i, AgentID j, TickerModel::TMparam param) {
   std::pair<AgentID,AgentID> key(i, j);
   std::map<std::pair<AgentID,AgentID>, std::pair<float,float> >
@@ -168,6 +185,24 @@ float TickerModel::get_social(AgentID i, AgentID j, TickerModel::TMparam param) 
     case TickerModel::AA:  return itr->second.second;
     default:
       throw "TickerModel::get_social(AgentID, AgentID, TickerModel::TMparam): "
+	"unexpected parameter requested.";
+    };
+}
+
+float TickerModel::get_weak_social(AgentID i, AgentID k, TickerModel::TMparam param) {
+  std::pair<AgentID,AgentID> key(i, k);
+  std::map<std::pair<AgentID,AgentID>, std::pair<float,float> >
+    ::const_iterator itr = _weak_social.find(key);
+  if( itr == _weak_social.end() )
+    throw "TickerModel::get_weak_social(AgentID, AgentID, TickerModel::TMparam): "
+      "requested AgentID pair not found.";
+
+  switch( param )
+    {
+    case TickerModel::B_:  return itr->second.first;
+    case TickerModel::BB:  return itr->second.second;
+    default:
+      throw "TickerModel::get_weak_social(AgentID, AgentID, TickerModel::TMparam): "
 	"unexpected parameter requested.";
     };
 }
@@ -316,6 +351,20 @@ void ModelData::add_ads(AgentID a, BrandID b, const AdSeq& adds) {
     throw "ModelData::add_ads(AgentID, BrandID, const AdSeq&): no add sequence "
       "matching requested AgentID";
   _ads[a].get(b) = adds;
+}
+
+AgentID ModelData::add_weak(void) {
+  AgentID new_id = (_weak_ties.size() == 0) ? 0 : *_weak_ties.rbegin() + 1;
+  return *_weak_ties.insert(new_id).first;
+}
+
+void ModelData::add_weak_pref(AgentID w, BrandID b, FashState f) {
+  std::pair<AgentID, BrandID> key( w, b );
+  if( _weak_ties.find(w) == _weak_ties.end() )
+    throw "ModelData::add_weak_pref(AgentID, BrandID, FashState): no Agent matching requested AgentID.";
+  if( _brands.find(b) == _brands.end() )
+    throw "ModelData::add_weak_pref(AgentID, BrandID, FashState): no Brand matching requested BrandID.";
+  _weak_pref[key] = f;
 }
 
 void ModelData::set_brand_price(BrandID b, float p) {

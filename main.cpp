@@ -55,6 +55,7 @@ int main( int argc, char *argv[] )
   //-----------------------------
   std::map<std::string, AgentID> agent_ids;
   std::map<std::string, BrandID> brand_ids;
+  std::map<std::string, AgentID> weak_ids;
   TickerModel m;
 
   try
@@ -102,13 +103,19 @@ int main( int argc, char *argv[] )
 	      if( !infile) throw "Unexpected token while reading ad-campaign.";
 	      m.get_ad_seq(aid, bid).add( atof(buff) );
 	    }
+
+	    else if( 0 == strcmp( buff, "weak_tie" ) ) {
+	      read_token( infile, buff, '\n' );
+	      weak_ids[ std::string(buff) ] = m.add_weak();
+	    }
+
 	    else
 	      throw "Invalid add requested.";
 	    
 	  } // end add to model
 
 	  // social ties
-	  else if( 0 == strcmp( buff, "social" ) ) { //implement
+	  else if( 0 == strcmp( buff, "social" ) ) {
 	    read_token( infile, buff );
 	    
 	    if( 0 == strcmp(buff, "strong") ) {
@@ -129,6 +136,28 @@ int main( int argc, char *argv[] )
 	      else
 		throw "Invalid parameter for strong social bonds.";
 	    }
+
+	    else if( 0 == strcmp(buff, "weak") ) {  // implement
+	      read_token( infile, buff );
+	      AgentID a = agent_ids[ std::string(buff) ];
+	      read_token( infile, buff );
+	      AgentID w = weak_ids[ std::string(buff) ];
+
+	      read_token( infile, buff );
+	      if( 0 == strcmp(buff, "B_") ) {
+		read_token( infile, buff, '\n' );
+		m.add_weak_social(a, w, atof(buff), TickerModel::B_);
+	      }
+	      else if( 0 == strcmp(buff, "BB") ) {
+		read_token( infile, buff, '\n' );
+		m.add_weak_social(a, w, atof(buff), TickerModel::BB);
+	      }
+	      else
+		throw "Invalid parameter for weak social bonds.";
+
+	      infile.ignore(LINE_MAX_SIZE, '\n');
+	    }
+
 	    else 
 	      throw "Unknown type of social bond.";
 
@@ -192,6 +221,24 @@ int main( int argc, char *argv[] )
 	    }
 
 	  } // end social parameters
+
+	  else if( 0 == strcmp( buff, "weak_tie" ) ) {
+	    read_token( infile, buff );
+	    AgentID weak_id = weak_ids[ std::string(buff) ];
+	    
+	    read_token( infile, buff );
+	    if( 0 == strcmp( buff, "brand" ) ) {
+	      read_token( infile, buff );
+	      BrandID bid = brand_ids[ std::string(buff) ];
+
+	      read_token( infile, buff, '\n' );
+	      m.add_weak_pref( weak_id, bid, (FashState)std::atoi(buff) );
+	    }
+	    else
+	      throw "Brand expected for weak tie preference.";
+
+	    //infile.ignore(LINE_MAX_SIZE, '\n');
+	  }
 
 	  // brand parameters
 	  else if( 0 == strcmp( buff, "brand" ) ) {

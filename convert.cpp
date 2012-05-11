@@ -126,14 +126,26 @@ int main( int argc, char *argv[] ) {
 	vector<vector<float> > weak_ties;
 	parser_1.getWeakTiesPreferences( weak_ties, weak_ties_count );
 
-	for( int k=1; k <= weak_ties_count; k++ ) {
-	  cout << "add weak_tie " << k << endl;
+	for( int k=0; k < weak_ties_count; k++ ) {
+	  cout << "add weak_tie " << k+1 << endl;
 	  
 	  for( int x=0; x<brand_count; x++ ) {
-	    cout << "    weak_tie " << k << " brand " << brand_names[x] << " " << weak_ties[k][x] << endl;
+	    cout << "    weak_tie " << k+1 << " brand " << brand_names[x] << " " << weak_ties[k][x] << endl;
 	  }
 	}
-      }
+	
+	vector<vector<pair<float,float> > > ties;
+	parser_1.getWeakInteractions( ties, agent_count, weak_ties_count );
+
+	for( int i=0; i < agent_count; i++ ) {
+	  for( int k=0; k < weak_ties_count; k++ ) {
+	    cout << "social weak " << i+1 << " " << k+1 << " B_ " << ties[i][k].first << endl;
+	    cout << "social weak " << i+1 << " " << k+1 << " BB " << ties[i][k].second << endl;
+	  }
+	}
+
+      } // end weak social ties
+
     }
   catch (const char* e)
     {

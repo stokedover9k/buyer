@@ -108,12 +108,25 @@ void BuyerParser::getInteractions(std::vector<std::vector<std::pair<float,float>
 				std::atof( getCell(Cell(st_A.first+j, 
 							st_A.second+i)).c_str() )
 				);
-      /**
-      std::cout << "a: " << p.first << std::endl;
-      std::cout << "A: " << p.second << std::endl;
-      std::cout << getCell(Cell(st_a.first+j, st_a.second+i)) << std::endl;
-      */
       v[i][j] = p;
+    }
+  }
+}
+
+void BuyerParser::getWeakInteractions(std::vector<std::vector<std::pair<float,float> > >& v, size_t agents, size_t ties) {
+  v.clear();
+  Cell st_b('k', 54);
+  Cell st_B('p', 54);
+  
+  for( int i=0; i<agents; i++ ) {
+    v.push_back(std::vector<std::pair<float,float> >(ties));
+    
+    for( int k=0; k<ties; k++ ) {
+      std::pair<float,float> p( std::atof( getCell( Cell(st_b.first+i,
+							 st_b.second+k) ).c_str() ),
+				std::atof( getCell( Cell(st_B.first+i,
+							 st_B.second+k) ).c_str() ) );
+      v[i][k] = p;
     }
   }
 }
@@ -125,11 +138,11 @@ void BuyerParser::getWeakTiesPreferences(std::vector<std::vector<float> >& ties,
 
   for( int k=0; k<ties_count; k++ ) {
     ties.push_back(std::vector<float>(N_BRANDS));
-    Cell c = Cell(start_c.first + k, start_c.second);
+    Cell c = Cell(start_c.first, start_c.second+k);
   
     for( int b=0; b<N_BRANDS; b++ ) {
       ties[k][b] = std::atof( getCell(c).c_str() );
-      c.second++;
+      c.first++;
     }
   }
 }
