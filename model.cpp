@@ -22,8 +22,7 @@ TickerModel::~TickerModel()
   delete _prev_tastes;
 }
 
-float TickerModel::update_agent_fash(AgentID a, BrandID b, 
-					 Model::ModelMode mode) {
+float TickerModel::update_agent_fash(AgentID a, BrandID b, Model::ModelMode mode) {
   float E_fash = calc_fashion_distrib(a, b, mode);
   get_agent( a ).state( b ).fash = E_fash;
   return E_fash;
@@ -88,6 +87,21 @@ float TickerModel::_p_fash_adv(FashState fash, float ad_v, AgentID a, BrandID b)
   FashState fash_prev;
   const FashDistrib& dist_prev = (*_prev_tastes)[std::pair<AgentID,BrandID>(a,b)];
 
+  float weak_influence = 1.0;
+  for( std::set<AgentID>::const_iterator w_itr = _weak_ties.begin();
+       w_itr != _weak_ties.end(); w_itr++ ) {
+
+    weak_influence *= 
+      std::exp( -get_weak_social(a, *w_itr, TickerModel::B_) *
+		std::pow(
+			 std::abs(
+				  fash - get_weak_pref(*w_itr, b)
+				  ),
+			 get_weak_social(a, *w_itr, TickerModel::BB)
+			 )
+		);
+  }
+
   float sum_total = 0;
   for( ITERATE_FASH_STATES ) {
     fash_prev = *fash_itr;
@@ -98,8 +112,6 @@ float TickerModel::_p_fash_adv(FashState fash, float ad_v, AgentID a, BrandID b)
       + get_social(a, a, TickerModel::A_) 
       * std::pow( std::abs(fash - fash_prev), 
 		  get_social(a, a, TickerModel::AA) );
-    //std::cout << "!!! " << std::pow( std::abs(fash - fash_prev), get_social(a, a, TickerModel::AA) ) << std::endl;
-    //std::cout << "!!!!! " << get_social(a,a,TickerModel::AA) << std::endl;
     
     sum_total += std::exp(-exponent) * dist_prev(fash_prev);
   }
@@ -126,7 +138,7 @@ float TickerModel::_p_fash_adv(FashState fash, float ad_v, AgentID a, BrandID b)
       product_total *= j_sum;
     }
 
-  return sum_total * product_total;
+  return weak_influence * sum_total * product_total;
 }
 
 void TickerModel::tick(void) {
@@ -401,6 +413,16 @@ AdSeq& ModelData::get_ad_seq(AgentID a, BrandID b) {
     throw "ModelData::get_ad_seq(AgentID, BrandID): "
       "no Agent matching requested AgentID";
   return ad_i->second.get( b );
+}
+
+FashState ModelData::get_weak_pref(AgentID w, BrandID b) {
+  std::pair<AgentID, BrandID> key( w, b );
+  std::map<std::pair<AgentID, BrandID>, FashState>::const_iterator fs = 
+    _weak_pref.find(key);
+  if( fs == _weak_pref.end() )
+    throw "ModelData::get_weak_pref(AgentID, BrandID): no preference matching "
+      "the requested Agent-Brand pair.";
+  return fs->second;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

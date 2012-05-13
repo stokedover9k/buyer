@@ -154,14 +154,10 @@ int main( int argc, char *argv[] )
 	      }
 	      else
 		throw "Invalid parameter for weak social bonds.";
-
-	      infile.ignore(LINE_MAX_SIZE, '\n');
 	    }
 
-	    else 
-	      throw "Unknown type of social bond.";
+	    else throw "Unknown type of social bond.";
 
-	    infile.ignore(LINE_MAX_SIZE, '\n');
 	  } // end social ties
 
 	  // agent parameters

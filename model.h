@@ -59,8 +59,8 @@ class ModelData {
   Agent& get_agent(AgentID a);
   float  get_price(BrandID b);
   float  get_ad(AgentID, BrandID b, size_t time);
-  
   AdSeq& get_ad_seq(AgentID, BrandID);
+  FashState get_weak_pref(AgentID, BrandID);
 
  protected:
   std::map<BrandID, float>      _brands;
@@ -126,8 +126,8 @@ class TickerModel : public Model {
   void  add_social(AgentID, AgentID, float, TMparam);
   float get_social(AgentID, AgentID, TMparam);
 
-  void  add_weak_social(AgentID, AgentID, float, TMparam);
-  float get_weak_social(AgentID, AgentID, TMparam);
+  void  add_weak_social(AgentID a, AgentID w, float, TMparam);
+  float get_weak_social(AgentID a, AgentID w, TMparam);
 
   /* Modes: 
    *   ROUND_AVG:  round the expected value to the nearest whole FashState.
